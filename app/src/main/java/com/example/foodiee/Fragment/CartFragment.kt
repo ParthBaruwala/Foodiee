@@ -1,11 +1,14 @@
 package com.example.foodiee.Fragment
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.foodiee.CongratsBottomSheet
+import com.example.foodiee.PayOutActivity
 import com.example.foodiee.R
 import com.example.foodiee.adaptar.CartAdapter
 import com.example.foodiee.databinding.CartItemBinding
@@ -38,6 +41,13 @@ class CartFragment : Fragment() {
         val adapter = CartAdapter(ArrayList(cartFoodName),ArrayList(cartItemPrice),ArrayList(cartImage))
         binding.cartRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.cartRecyclerView.adapter = adapter
+        binding.proceedButton.setOnClickListener {
+            val intent = Intent(requireContext(),PayOutActivity::class.java)
+            startActivity(intent)
+        }
+
+
+
         return binding.root
     }
 

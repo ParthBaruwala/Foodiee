@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.denzcoskun.imageslider.constants.ScaleTypes
 import com.denzcoskun.imageslider.interfaces.ItemClickListener
 import com.denzcoskun.imageslider.models.SlideModel
+import com.example.foodiee.MenuBootomSheetFragment
 import com.example.foodiee.R
 import com.example.foodiee.adaptar.PopularAdapter
 import com.example.foodiee.databinding.FragmentHomeBinding
@@ -28,6 +29,11 @@ class HomeFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentHomeBinding.inflate(inflater,container,false)
+
+        binding.viewAllMenu.setOnClickListener {
+            val bottomSheetDialog = MenuBootomSheetFragment()
+            bottomSheetDialog.show(parentFragmentManager,"Test")
+        }
         return binding.root
 
     }
@@ -57,7 +63,7 @@ class HomeFragment : Fragment() {
         val foodName = listOf("Burger","sandwich","momo","item")
         val Price = listOf("₹80","₹100","₹60","₹200")
         val populerFoodImages= listOf(R.drawable.menu1,R.drawable.menu2,R.drawable.menu3,R.drawable.menu4)
-        val adapter = PopularAdapter(foodName,Price,populerFoodImages)
+        val adapter = PopularAdapter(foodName,Price,populerFoodImages,requireContext())
         binding.PopularRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.PopularRecyclerView.adapter = adapter
 
