@@ -60,8 +60,8 @@
                     android:layout_marginStart="16dp"
                     android:fontFamily="@font/yeon_sung"
                     android:text="FoodName"
-                    android:textSize="16sp"
                     android:textColor="@color/black"
+                    android:textSize="16sp"
                     app:layout_constraintBottom_toTopOf="@+id/buyAgainFoodPrice"
                     app:layout_constraintStart_toEndOf="@+id/buyAgainFoodImage"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -72,8 +72,8 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/yeon_sung"
                     android:text="₹200"
-                    android:textSize="16sp"
                     android:textColor="@color/textColor"
+                    android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="@+id/buyAgainFoodName"
                     app:layout_constraintTop_toBottomOf="@+id/buyAgainFoodName" />
@@ -82,12 +82,28 @@
                     android:id="@+id/orderStatues"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:layout_marginEnd="32dp"
+                    android:layout_marginEnd="42dp"
                     app:cardBackgroundColor="#4CAF50"
                     app:cardCornerRadius="20dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintBottom_toTopOf="@+id/receivedButton"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/receivedButton"
+                    android:layout_width="75dp"
+                    android:layout_height="25dp"
+                    android:background="@drawable/addtocartshape"
+                    android:fontFamily="@font/yeon_sung"
+                    android:text="Recevied"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/orderStatues"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="@+id/orderStatues"
+                    app:layout_constraintTop_toBottomOf="@+id/orderStatues" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.cardview.widget.CardView>
