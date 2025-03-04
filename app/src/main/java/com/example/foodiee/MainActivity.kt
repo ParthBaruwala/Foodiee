@@ -27,10 +27,5 @@ class MainActivity : AppCompatActivity() {
             val bottomSheetDialog = Notification_Bottom_Fragment()
             bottomSheetDialog.show(supportFragmentManager,"Test")
         }
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
     }
 }

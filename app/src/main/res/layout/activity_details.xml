@@ -44,7 +44,7 @@
         app:layout_constraintTop_toBottomOf="@+id/detailFoodName">
 
         <ImageView
-            android:id="@+id/DetailFoodImage"
+            android:id="@+id/detailFoodImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:scaleType="centerCrop"
@@ -65,7 +65,7 @@
         app:layout_constraintTop_toBottomOf="@+id/cardView4" />
 
     <TextView
-        android:id="@+id/DescriptionTextView"
+        android:id="@+id/detailDescription"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -85,19 +85,20 @@
         android:text="Ingredients"
         android:textColor="@color/black"
         android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="@+id/DescriptionTextView"
+        app:layout_constraintEnd_toEndOf="@+id/detailDescription"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/DescriptionTextView"
-        app:layout_constraintTop_toBottomOf="@+id/DescriptionTextView" />
+        app:layout_constraintStart_toStartOf="@+id/detailDescription"
+        app:layout_constraintTop_toBottomOf="@+id/detailDescription" />
 
     <TextView
-        android:id="@+id/IngredientsTextView"
+        android:id="@+id/detailIngredients"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:text="1 item\nsecond item\n3 item"
         android:textColor="@color/black"
-        app:layout_constraintEnd_toEndOf="@+id/DescriptionTextView"
+        app:layout_constraintEnd_toEndOf="@+id/detailDescription"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/textView32"
         app:layout_constraintTop_toBottomOf="@+id/textView32" />
@@ -116,5 +117,5 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/IngredientsTextView" />
+        app:layout_constraintTop_toBottomOf="@+id/detailIngredients" />
 </androidx.constraintlayout.widget.ConstraintLayout>
