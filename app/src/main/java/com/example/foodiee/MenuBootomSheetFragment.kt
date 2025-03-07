@@ -43,6 +43,10 @@ class MenuBootomSheetFragment : BottomSheetDialogFragment() {
     }
 
     private fun retrieveMenuItems() {
+
+        // Show progress bar
+        binding.progressBar.visibility = View.VISIBLE
+
         database = FirebaseDatabase.getInstance()
         val foodRef: DatabaseReference = database.reference.child("menu")
         menuItems = mutableListOf()
@@ -53,6 +57,10 @@ class MenuBootomSheetFragment : BottomSheetDialogFragment() {
                     val menuItem = foodSnapshot.getValue(MenuItems::class.java)
                     menuItem?.let { menuItems.add(it) }
                 }
+
+                // Hide progress bar when data is loaded
+                binding.progressBar.visibility = View.GONE
+
                 Log.d("ITEMS", "Data Received")
                 // Once data receive, set to adapter.
                 setAdapter()

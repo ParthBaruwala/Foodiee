@@ -35,7 +35,7 @@
             android:name=".StartActivity"
             android:exported="false" />
         <activity
-            android:name=".Splash_Screen"
+            android:name=".SplashScreen"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

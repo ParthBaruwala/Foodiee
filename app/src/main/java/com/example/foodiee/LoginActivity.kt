@@ -4,14 +4,14 @@ package com.example.foodiee
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.foodiee.databinding.ActivityLoginBinding
 import com.example.foodiee.model.UserModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -33,14 +33,17 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
     private lateinit var googleSignInClint: GoogleSignInClient
+    private lateinit var progressDialog: AlertDialog
 
     private val binding: ActivityLoginBinding by lazy {
         ActivityLoginBinding.inflate(layoutInflater)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(binding.root)
+
+        window.statusBarColor = Color.TRANSPARENT
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
 
         val googleSignInOption = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id)).requestEmail().build()
@@ -60,6 +63,7 @@ class LoginActivity : AppCompatActivity() {
             if(email.isBlank() || password.isBlank()){
                 Toast.makeText(this, "Please enter all the Details 😒", Toast.LENGTH_SHORT).show()
             }else{
+                showProgressDialog()
                 createUser()
                 Toast.makeText(this, "Login Successful 😁", Toast.LENGTH_SHORT).show()
             }
@@ -71,6 +75,7 @@ class LoginActivity : AppCompatActivity() {
 
         // Google Sign-In
         binding.GoogleButton.setOnClickListener {
+            showProgressDialog() // Show loading
             val signInIntent = googleSignInClint.signInIntent
             launcher.launch(signInIntent)
         }
@@ -86,6 +91,7 @@ class LoginActivity : AppCompatActivity() {
                 val credential = GoogleAuthProvider.getCredential(account?.idToken, null)
                 auth.signInWithCredential(credential).addOnCompleteListener{
                     task ->
+                    hideProgressDialog()
                     if(task.isSuccessful){
                         Toast.makeText(this, "Sign In SuccessFull 😁", Toast.LENGTH_SHORT).show()
                         startActivity(Intent(this, MainActivity::class.java))
@@ -96,6 +102,7 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         }else{
+            hideProgressDialog()
             Toast.makeText(this, "Sign In Field 😔", Toast.LENGTH_SHORT).show()
         }
     }
@@ -103,16 +110,17 @@ class LoginActivity : AppCompatActivity() {
     private fun createUser() {
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener{
             task ->
+            hideProgressDialog()
             if(task.isSuccessful){
                 val user = auth.currentUser
-                udateUi(user)
+                updateUi(user)
             }else{
                 auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener{
                     task ->
                     if(task.isSuccessful){
                         saveUserData()
                         val user = auth.currentUser
-                        udateUi(user)
+                        updateUi(user)
                     }else{
                         Toast.makeText(this, "Error 😒", Toast.LENGTH_SHORT).show()
                     }
@@ -151,9 +159,29 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun udateUi(user: FirebaseUser?) {
+    private fun updateUi(user: FirebaseUser?) {
         val intent = Intent(this,MainActivity::class.java)
         startActivity(intent)
         finish()
+    }
+
+    // Progress dialog to show loading
+    private fun showProgressDialog() {
+        val inflater = layoutInflater
+        val dialogView = inflater.inflate(R.layout.progress_dialog, null)
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(dialogView)
+        builder.setCancelable(false)
+
+        progressDialog = builder.create()
+        progressDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        progressDialog.show()
+    }
+
+    private fun hideProgressDialog() {
+        if (::progressDialog.isInitialized && progressDialog.isShowing) {
+            progressDialog.dismiss()
+        }
     }
 }
