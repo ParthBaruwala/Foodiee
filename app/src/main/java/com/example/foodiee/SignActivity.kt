@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -32,6 +33,7 @@ class SignActivity : AppCompatActivity() {
     private lateinit var auth:FirebaseAuth
     private lateinit var database:DatabaseReference
     private lateinit var googleSignInClint: GoogleSignInClient
+    private lateinit var progressDialog: AlertDialog
 
     private val binding : ActivitySignBinding by lazy {
         ActivitySignBinding.inflate(layoutInflater)
@@ -62,6 +64,7 @@ class SignActivity : AppCompatActivity() {
             if(email.isEmpty() || password.isBlank() || username.isBlank()){
                 Toast.makeText(this, "Please fill all the Details", Toast.LENGTH_SHORT).show()
             }else{
+                showProgressDialog()
                 creatAccount(email, password)
             }
         }
@@ -70,13 +73,9 @@ class SignActivity : AppCompatActivity() {
             val intent = Intent(this,LoginActivity::class.java)
             startActivity(intent)
         }
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
 
         binding.googleButton.setOnClickListener{
+            showProgressDialog()
             val signIntent = googleSignInClint.signInIntent
             launcher.launch(signIntent)
         }
@@ -92,6 +91,7 @@ class SignActivity : AppCompatActivity() {
                 val credential = GoogleAuthProvider.getCredential(account?.idToken, null)
                 auth.signInWithCredential(credential).addOnCompleteListener{
                     task ->
+                    hideProgressDialog()
                     if(task.isSuccessful){
                         Toast.makeText(this, "Sign In SuccessFull 😁", Toast.LENGTH_SHORT).show()
                         startActivity(Intent(this, MainActivity::class.java))
@@ -102,6 +102,7 @@ class SignActivity : AppCompatActivity() {
                 }
             }
         }else{
+            hideProgressDialog()
             Toast.makeText(this, "Sign In Field 😔", Toast.LENGTH_SHORT).show()
         }
     }
@@ -109,6 +110,7 @@ class SignActivity : AppCompatActivity() {
     private fun creatAccount(email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener{
             task ->
+            hideProgressDialog()
             if(task.isSuccessful){
                 Toast.makeText(this, "Account Created Successfully", Toast.LENGTH_SHORT).show()
                 saveUserData()
@@ -135,6 +137,26 @@ class SignActivity : AppCompatActivity() {
                 }
         } else {
             Toast.makeText(this, "User ID is null. Data not saved.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Progress dialog to show loading
+    private fun showProgressDialog() {
+        val inflater = layoutInflater
+        val dialogView = inflater.inflate(R.layout.progress_dialog, null)
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(dialogView)
+        builder.setCancelable(false)
+
+        progressDialog = builder.create()
+        progressDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        progressDialog.show()
+    }
+
+    private fun hideProgressDialog() {
+        if (::progressDialog.isInitialized && progressDialog.isShowing) {
+            progressDialog.dismiss()
         }
     }
 }
