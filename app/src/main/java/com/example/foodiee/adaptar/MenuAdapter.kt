@@ -3,20 +3,18 @@ package com.example.foodiee.adaptar
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.example.foodiee.DetailsActivity
 import com.example.foodiee.databinding.MenuItemBinding
 import com.example.foodiee.model.MenuItems
 import java.io.ByteArrayInputStream
 
 class MenuAdapter(
-    private val menuItems:List<MenuItems>,
+    private val menuItems: List<MenuItems>,
     private val requireContext: Context
 ) : RecyclerView.Adapter<MenuAdapter.MenuViewHolder>() {
 

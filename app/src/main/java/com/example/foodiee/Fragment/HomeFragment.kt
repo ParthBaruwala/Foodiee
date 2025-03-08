@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,11 +12,19 @@ import com.denzcoskun.imageslider.interfaces.ItemClickListener
 import com.denzcoskun.imageslider.models.SlideModel
 import com.example.foodiee.MenuBootomSheetFragment
 import com.example.foodiee.R
-import com.example.foodiee.adaptar.PopularAdapter
+import com.example.foodiee.adaptar.MenuAdapter
 import com.example.foodiee.databinding.FragmentHomeBinding
+import com.example.foodiee.model.MenuItems
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
+    private lateinit var database: FirebaseDatabase
+    private lateinit var menuItems: MutableList<MenuItems>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,8 +41,55 @@ class HomeFragment : Fragment() {
             val bottomSheetDialog = MenuBootomSheetFragment()
             bottomSheetDialog.show(parentFragmentManager,"Test")
         }
+
+        // Retrieve and display popular menu items.
+        retrieveAndDisplayPopularItems()
         return binding.root
 
+    }
+
+    private fun retrieveAndDisplayPopularItems() {
+        binding.progressBar.visibility = View.VISIBLE
+        // get reference to the database.
+        database = FirebaseDatabase.getInstance()
+        val foodRef: DatabaseReference = database.reference.child("menu")
+        menuItems = mutableListOf()
+
+        // retrieve menu items from the database.
+        foodRef.addListenerForSingleValueEvent(object: ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for(foodSnapshot in snapshot.children){
+                    val menuItem = foodSnapshot.getValue(MenuItems::class.java)
+                    menuItem?.let {
+                        menuItems.add(it)
+                    }
+                    // display a random popular items.
+                    randomPopularItems()
+                }
+                binding.progressBar.visibility = View.GONE
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                binding.progressBar.visibility = View.GONE
+                Toast.makeText(requireContext(), "Failed to load menu: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+
+        })
+    }
+
+    private fun randomPopularItems() {
+        // create as shuffled list of menu items.
+        val index = menuItems.indices.toList().shuffled()
+        val menuItemShow = 6
+        val subMenuItems = index.take(menuItemShow).map { menuItems [it] }
+
+        setUpPopularItemsAdapter(subMenuItems)
+    }
+
+    private fun setUpPopularItemsAdapter(subMenuItems: List<MenuItems>) {
+        val adapter = MenuAdapter(subMenuItems, requireContext())
+        binding.PopularRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.PopularRecyclerView.adapter = adapter
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -60,14 +114,6 @@ class HomeFragment : Fragment() {
                 Toast.makeText(requireContext(),itemMessage,Toast.LENGTH_SHORT).show()
             }
         })
-        val foodName = listOf("Burger","sandwich","momo","item")
-        val Price = listOf("₹80","₹100","₹60","₹200")
-        val populerFoodImages= listOf(R.drawable.menu1,R.drawable.menu2,R.drawable.menu3,R.drawable.menu4)
-        val adapter = PopularAdapter(foodName,Price,populerFoodImages,requireContext())
-        binding.PopularRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.PopularRecyclerView.adapter = adapter
 
-    }
-    companion object {
     }
 }

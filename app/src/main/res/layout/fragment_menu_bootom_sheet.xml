@@ -41,6 +41,6 @@
         android:visibility="visible"
         android:indeterminate="true"
         android:theme="@style/Widget.AppCompat.ProgressBar.Horizontal"
-        android:progressTint="@color/green"/>
+        android:indeterminateTint="@color/green"/>
 
 </LinearLayout>
