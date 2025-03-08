@@ -1,5 +1,6 @@
 package com.example.foodiee.adaptar
 
+import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -8,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.example.foodiee.R
 import com.example.foodiee.databinding.CartItemBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -25,6 +27,8 @@ class CartAdapter(
     private var cartQuantity: MutableList<Int>,
     private var cartIngredient: MutableList<String>,
 ) : RecyclerView.Adapter<CartAdapter.CartViewHolder>() {
+
+    private lateinit var progressDialog: AlertDialog
 
     private val auth = FirebaseAuth.getInstance()
 
@@ -53,13 +57,21 @@ class CartAdapter(
 
     override fun getItemCount(): Int = cartItems.size
 
+    // get Updated Quantity.
+    fun getUpdateItemsQuantities(): MutableList<Int> {
+        val itemQuantity = mutableListOf<Int>()
+        itemQuantity.addAll(cartQuantity)
+        return itemQuantity
+    }
+
     inner class CartViewHolder(private val binding: CartItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(position: Int) {
             binding.apply {
                 val quantity = itemQuantities[position]
                 cartFoodName.text = cartItems[position]
-                cartItemPrice.text = cartItemPrices[position]
+
+                updatePrice(position)
 
                 val imageString = cartImages[position]
                 val bitmap = decodeBase64ToBitmap(imageString)
@@ -94,22 +106,36 @@ class CartAdapter(
         private fun increaseQuantity(position: Int) {
             if (itemQuantities[position] < 10) {
                 itemQuantities[position]++
+                cartQuantity[position] = itemQuantities[position]
                 binding.cartItemQuantity.text = itemQuantities[position].toString()
+                updatePrice(position)
             }
         }
 
         private fun decreaseQuantity(position: Int) {
             if (itemQuantities[position] > 1) {
                 itemQuantities[position]--
+                cartQuantity[position] = itemQuantities[position]
                 binding.cartItemQuantity.text = itemQuantities[position].toString()
+                updatePrice(position)
             }
         }
 
+        private fun updatePrice(position: Int) {
+            val pricePerUnit = cartItemPrices[position].replace(" ₹/-", "").toIntOrNull() ?: 0
+            val newPrice = pricePerUnit * itemQuantities[position]
+            val updatedPriceText = "$newPrice ₹/-"
+            binding.cartItemPrice.text = updatedPriceText
+        }
+
         private fun deleteItem(position: Int) {
+            showProgressDialog()
             val positionRetrieve = position
             getUniqueKeyAtPosition(positionRetrieve){ uniqueKey ->
                 if(uniqueKey != null){
                     removeItem(position, uniqueKey)
+                }else{
+                    hideProgressDialog()
                 }
             }
         }
@@ -118,6 +144,7 @@ class CartAdapter(
             if(uniqueKey != null){
                 cartItemReference.child(uniqueKey).removeValue()
                     .addOnSuccessListener {
+                        hideProgressDialog()
                         cartItems.removeAt(position)
                         cartImages.removeAt(position)
                         cartDescriptions.removeAt(position)
@@ -133,6 +160,7 @@ class CartAdapter(
                         notifyItemRangeChanged(position, cartItems.size)
                     }
                     .addOnFailureListener {
+                        hideProgressDialog()
                         Toast.makeText(context, "Failed to Delete Item", Toast.LENGTH_SHORT).show()
                     }
             }
@@ -156,6 +184,25 @@ class CartAdapter(
 
                 }
             })
+        }
+    }
+
+    private fun showProgressDialog() {
+        val inflater = LayoutInflater.from(context)
+        val dialogView = inflater.inflate(R.layout.progress_dialog, null)
+
+        val builder = AlertDialog.Builder(context)
+        builder.setView(dialogView)
+        builder.setCancelable(false)
+
+        progressDialog = builder.create()
+        progressDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        progressDialog.show()
+    }
+
+    private fun hideProgressDialog() {
+        if (::progressDialog.isInitialized && progressDialog.isShowing) {
+            progressDialog.dismiss()
         }
     }
 }

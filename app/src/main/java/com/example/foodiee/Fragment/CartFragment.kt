@@ -7,8 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.foodiee.PayOutActivity
+import com.example.foodiee.R
 import com.example.foodiee.adaptar.CartAdapter
 import com.example.foodiee.databinding.FragmentCartBinding
 import com.example.foodiee.model.CartItems
@@ -32,6 +34,7 @@ class CartFragment : Fragment() {
     private lateinit var quantity: MutableList<Int>
     private lateinit var cartAdapter: CartAdapter
     private lateinit var userId: String
+    private lateinit var progressDialog: AlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,11 +51,66 @@ class CartFragment : Fragment() {
         retrieveCartItems()
 
         binding.proceedButton.setOnClickListener {
-            val intent = Intent(requireContext(),PayOutActivity::class.java)
-            startActivity(intent)
+            showProgressDialog()
+            // get order items details before processing to check out.
+            getOrderDetails()
         }
 
         return binding.root
+    }
+
+    private fun getOrderDetails() {
+        val orderIdReference: DatabaseReference = database.reference.child("user").child(userId).child("CartItems")
+
+        val foodName = mutableListOf<String>()
+        val foodPrice = mutableListOf<String>()
+        val foodImage = mutableListOf<String>()
+        val foodDescription = mutableListOf<String>()
+        val foodIngredient = mutableListOf<String>()
+        // get items Quantities.
+        val foodQuantities = cartAdapter.getUpdateItemsQuantities()
+
+        orderIdReference.addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for(foodSnapshot in snapshot.children){
+                    // get the cartItems to respective List.
+                    val orderItems = foodSnapshot.getValue(CartItems::class.java)
+                    // add items details in to list.
+                    orderItems?.foodName?.let { foodName.add(it) }
+                    orderItems?.foodPrice?.let { foodPrice.add(it) }
+                    orderItems?.foodDescription?.let { foodDescription.add(it) }
+                    orderItems?.foodImage?.let { foodImage.add(it) }
+                    orderItems?.foodIngredients?.let { foodIngredient.add(it) }
+                }
+                orderNow(foodName, foodPrice, foodDescription, foodImage, foodIngredient, foodQuantities)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(requireContext(), "Order Making Failed. Pleas Try Again.", Toast.LENGTH_SHORT).show()
+            }
+
+        })
+    }
+
+    private fun orderNow(
+        foodName: MutableList<String>,
+        foodPrice: MutableList<String>,
+        foodDescription: MutableList<String>,
+        foodImage: MutableList<String>,
+        foodIngredient: MutableList<String>,
+        foodQuantities: MutableList<Int>
+    ) {
+        if(isAdded && context != null){
+            hideProgressDialog()
+            val intent = Intent(requireContext(), PayOutActivity::class.java)
+            intent.putExtra("FoodItemName", foodName as ArrayList<String>)
+            intent.putExtra("FoodItemPrice", foodPrice as ArrayList<String>)
+            intent.putExtra("FoodItemDescription", foodDescription as ArrayList<String>)
+            intent.putExtra("FoodItemImage", foodImage as ArrayList<String>)
+            intent.putExtra("FoodItemIngredient", foodIngredient as ArrayList<String>)
+            intent.putExtra("FoodItemQuantities", foodQuantities as ArrayList<Int>)
+            startActivity(intent)
+        }
     }
 
     private fun retrieveCartItems() {
@@ -89,9 +147,17 @@ class CartFragment : Fragment() {
             }
 
             private fun setAdapter() {
-                val adapter = CartAdapter(requireContext(), foodNames, foodPrices, foodDescriptions, foodImages, quantity, foodIngredients)
+                cartAdapter = CartAdapter(
+                    requireContext(),
+                    foodNames,
+                    foodPrices,
+                    foodDescriptions,
+                    foodImages,
+                    quantity,
+                    foodIngredients
+                )
                 binding.cartRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-                binding.cartRecyclerView.adapter = adapter
+                binding.cartRecyclerView.adapter = cartAdapter
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -99,6 +165,26 @@ class CartFragment : Fragment() {
             }
 
         })
+    }
+
+    // Progress dialog to show loading
+    private fun showProgressDialog() {
+        val inflater = layoutInflater
+        val dialogView = inflater.inflate(R.layout.progress_dialog, null)
+
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setView(dialogView)
+        builder.setCancelable(false)
+
+        progressDialog = builder.create()
+        progressDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        progressDialog.show()
+    }
+
+    private fun hideProgressDialog() {
+        if (::progressDialog.isInitialized && progressDialog.isShowing) {
+            progressDialog.dismiss()
+        }
     }
 
     companion object {
