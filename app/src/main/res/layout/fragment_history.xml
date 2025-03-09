@@ -13,6 +13,19 @@
         android:layout_height="match_parent">
 
         <TextView
+            android:id="@+id/noOrderText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No orders found"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
             android:id="@+id/textView25"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -38,8 +51,20 @@
             app:layout_constraintTop_toBottomOf="@id/textView25">
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/recentBuyItem"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
+
+                <ProgressBar
+                    android:id="@+id/recentBuyProgressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminateTint="@color/green"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
 
                 <ImageView
                     android:id="@+id/buyAgainFoodImage"
@@ -131,5 +156,16 @@
             app:layout_constraintStart_toStartOf="parent"
             tools:listitem="@layout/buy_again_item"
             app:layout_constraintTop_toBottomOf="@+id/textView28" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateTint="@color/green"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

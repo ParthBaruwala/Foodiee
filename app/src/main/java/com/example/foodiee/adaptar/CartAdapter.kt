@@ -124,7 +124,7 @@ class CartAdapter(
         private fun updatePrice(position: Int) {
             val pricePerUnit = cartItemPrices[position].replace(" ₹/-", "").toIntOrNull() ?: 0
             val newPrice = pricePerUnit * itemQuantities[position]
-            val updatedPriceText = "$newPrice ₹/-"
+            val updatedPriceText = "₹$newPrice /-"
             binding.cartItemPrice.text = updatedPriceText
         }
 

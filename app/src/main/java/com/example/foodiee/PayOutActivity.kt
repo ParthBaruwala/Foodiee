@@ -1,10 +1,14 @@
 package com.example.foodiee
 
+import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.foodiee.databinding.ActivityPayOutBinding
+import com.example.foodiee.model.OrderDetails
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -15,6 +19,7 @@ import com.google.firebase.database.ValueEventListener
 @Suppress("DEPRECATION")
 class PayOutActivity : AppCompatActivity() {
     lateinit var binding : ActivityPayOutBinding
+    private lateinit var progressDialog: AlertDialog
 
     private lateinit var auth: FirebaseAuth
     private lateinit var name: String
@@ -51,7 +56,7 @@ class PayOutActivity : AppCompatActivity() {
         foodItemIngredient = intent.getStringArrayListExtra("FoodItemIngredient") as ArrayList<String>
         foodItemQuantities = intent.getIntegerArrayListExtra("FoodItemQuantities") as ArrayList<Int>
 
-        totalAmount = calculateTotalAmount().toString() + " ₹/-"
+        totalAmount = "₹" + calculateTotalAmount().toString() + " /-"
         binding.totalAmount.isEnabled = false
         binding.totalAmount.setText(totalAmount)
 
@@ -59,13 +64,57 @@ class PayOutActivity : AppCompatActivity() {
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
 
         binding.PlaceMyOrder.setOnClickListener {
-            val bottomSheetDialog = CongratsBottomSheet()
-            bottomSheetDialog.show(supportFragmentManager,"Test")
+            // get data from textview.
+            name = binding.name.text.toString().trim()
+            address = binding.address.text.toString().trim()
+            phone = binding.phone.text.toString().trim()
+
+            if(name.isBlank() && address.isBlank() && phone.isBlank()){
+                Toast.makeText(this, "Please, Enter All the Details. 😌", Toast.LENGTH_SHORT).show()
+            }else{
+                placeOrder()
+            }
         }
 
         binding.backButton.setOnClickListener {
             finish()
         }
+    }
+
+    private fun placeOrder() {
+        showProgressDialog()
+        userId = auth.currentUser?.uid?:""
+        val time = System.currentTimeMillis()
+        val itemPushKey = databaseReference.child("OrderDetails").push().key
+        val orderDetails = OrderDetails(userId, name, foodItemName, foodItemPrice, foodItemImage, foodItemQuantities, address, totalAmount, phone, time, itemPushKey, false, false)
+        val orderReference = databaseReference.child("OrderDetails").child(itemPushKey!!)
+        orderReference.setValue(orderDetails)
+            .addOnSuccessListener {
+                hideProgressDialog()
+                val bottomSheetDialog = CongratsBottomSheet()
+                bottomSheetDialog.show(supportFragmentManager,"Test")
+
+                removeItemFromCart()
+                addOrderToHistory(orderDetails)
+            }
+            .addOnFailureListener {
+                hideProgressDialog()
+                Toast.makeText(this, "failed to Order 😔", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun addOrderToHistory(orderDetails: OrderDetails) {
+        databaseReference.child("user").child(userId).child("BuyHistory")
+            .child(orderDetails.itemPushKey!!)
+            .setValue(orderDetails)
+            .addOnSuccessListener {
+
+            }
+    }
+
+    private fun removeItemFromCart() {
+        val cartItemReference = databaseReference.child("user").child(userId).child("CartItems")
+        cartItemReference.removeValue()
     }
 
     private fun calculateTotalAmount(): Int {
@@ -110,6 +159,25 @@ class PayOutActivity : AppCompatActivity() {
                 }
 
             })
+        }
+    }
+
+    private fun showProgressDialog() {
+        val inflater = LayoutInflater.from(this)
+        val dialogView = inflater.inflate(R.layout.progress_dialog, null)
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(dialogView)
+        builder.setCancelable(false)
+
+        progressDialog = builder.create()
+        progressDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        progressDialog.show()
+    }
+
+    private fun hideProgressDialog() {
+        if (::progressDialog.isInitialized && progressDialog.isShowing) {
+            progressDialog.dismiss()
         }
     }
 }
