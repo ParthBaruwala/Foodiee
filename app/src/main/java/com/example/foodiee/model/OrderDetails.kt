@@ -44,8 +44,8 @@ class OrderDetails():Serializable{
         phone: String,
         time: Long,
         itemPushKey: String?,
-        b: Boolean,
-        b1: Boolean
+        orderAccepted: Boolean,
+        paymentReceived: Boolean
     ) : this(){
         this.useUid = userId
         this.userName = name

@@ -78,7 +78,6 @@ class HistoryFragment : Fragment() {
         binding.progressBar.visibility = View.VISIBLE
         binding.recentBuyProgressBar.visibility = View.VISIBLE
         binding.recentBuyItem.visibility = View.INVISIBLE
-        binding.recentBuyItem.visibility = View.INVISIBLE
 
         userId = auth.currentUser?.uid?:""
 
