@@ -6,7 +6,7 @@ import java.io.Serializable
 import java.util.ArrayList
 
 class OrderDetails():Serializable{
-    var useUid: String? = null
+    var userUid: String? = null
     var userName: String? = null
     var foodNames: MutableList<String>? = null
     var foodImages: MutableList<String>? = null
@@ -21,7 +21,7 @@ class OrderDetails():Serializable{
     var currentTime: Long = 0
 
     constructor(parcel: Parcel) : this() {
-        useUid = parcel.readString()
+        userUid = parcel.readString()
         userName = parcel.readString()
         address = parcel.readString()
         totalPrice = parcel.readString()
@@ -47,7 +47,7 @@ class OrderDetails():Serializable{
         orderAccepted: Boolean,
         paymentReceived: Boolean
     ) : this(){
-        this.useUid = userId
+        this.userUid = userId
         this.userName = name
         this.foodNames = foodItemName
         this.foodPrice = foodItemPrice
@@ -63,7 +63,7 @@ class OrderDetails():Serializable{
     }
 
     fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(useUid)
+        parcel.writeString(userUid)
         parcel.writeString(userName)
         parcel.writeString(address)
         parcel.writeString(totalPrice)
